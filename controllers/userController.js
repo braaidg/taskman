@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 import generateId from "../helpers/generateId.js";
+import generateJWT from "../helpers/generateJWT.js";
 
 const register = async (req, res) => {
   const { email } = req.body;
@@ -35,7 +36,12 @@ const authenticate = async (req, res) => {
   }
 
   if (await user.checkPassword(password)) {
-    res.json({ _id: user._id, name: user.name, email: user.email });
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      token: generateJWT(user._id),
+    });
   } else {
     const error = new Error("Password doesn't match");
     return res.status(404).json({ msg: error.message });
