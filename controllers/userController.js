@@ -20,4 +20,26 @@ const register = async (req, res) => {
   }
 };
 
-export { register };
+const authenticate = async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    const error = new Error("User doesn't exist");
+    return res.status(404).json({ msg: error.message });
+  }
+
+  if (!user.confirmed) {
+    const error = new Error("Your account is not confirmed");
+    return res.status(404).json({ msg: error.message });
+  }
+
+  if (await user.checkPassword(password)) {
+    res.json({ _id: user._id, name: user.name, email: user.email });
+  } else {
+    const error = new Error("Password doesn't match");
+    return res.status(404).json({ msg: error.message });
+  }
+};
+
+export { register, authenticate };
