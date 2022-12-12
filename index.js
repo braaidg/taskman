@@ -11,7 +11,7 @@ dotenv.config();
 
 dbConnection();
 
-const corsWhitelist = ["http://localhost:5173", "http://localhost:3000"];
+const corsWhitelist = [process.env.FRONTEND_URL];
 const corsOptions = {
   origin: function (origin, callback) {
     if (corsWhitelist.includes(origin)) {
