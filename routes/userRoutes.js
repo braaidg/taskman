@@ -7,7 +7,9 @@ import {
   forgotPassword,
   checkToken,
   newPassword,
+  profile,
 } from "../controllers/userController.js";
+import checkAuth from "../middleware/checkAuth.js";
 
 const router = express.Router();
 
@@ -19,5 +21,7 @@ router.post("/forgot-password", forgotPassword);
 router.get("/confirm/:token", confirmAccount);
 
 router.route("/forgot-password/:token").get(checkToken).post(newPassword);
+
+router.get("/profile", checkAuth, profile);
 
 export default router;
