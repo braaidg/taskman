@@ -66,4 +66,64 @@ const confirmAccount = async (req, res) => {
   }
 };
 
-export { register, authenticate, confirmAccount };
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    const error = new Error("User doesn't exist");
+    return res.status(404).json({ msg: error.message });
+  }
+
+  try {
+    user.token = generateId();
+    await user.save();
+    res.json({ msg: "We sent you an email with instructions" });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const checkToken = async (req, res) => {
+  const { token } = req.params;
+
+  const dbUserFromToken = await User.findOne({ token });
+
+  if (dbUserFromToken) {
+    res.json({ msg: "Token valid and user exist" });
+  } else {
+    const error = new Error("Token is not valid");
+    return res.status(404).json({ msg: error.message });
+  }
+};
+
+const newPassword = async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  const dbUserFromToken = await User.findOne({ token });
+
+  if (dbUserFromToken) {
+    dbUserFromToken.password = password;
+    dbUserFromToken.token = "";
+    try {
+      await dbUserFromToken.save();
+      res.json({ msg: "Password successfully modified" });
+    } catch (error) {
+      console.log(error);
+    }
+  } else {
+    const error = new Error("Token is not valid");
+    return res.status(404).json({ msg: error.message });
+  }
+};
+
+export {
+  register,
+  authenticate,
+  confirmAccount,
+  forgotPassword,
+  checkToken,
+  newPassword,
+};
