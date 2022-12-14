@@ -1,7 +1,10 @@
 import User from "../models/User.js";
 import generateId from "../helpers/generateId.js";
 import generateJWT from "../helpers/generateJWT.js";
-import { sendRegisteredEmail } from "../helpers/email.js";
+import {
+  sendRegisteredEmail,
+  sendForgotPasswordEmail,
+} from "../helpers/email.js";
 
 const register = async (req, res) => {
   const { email } = req.body;
@@ -72,7 +75,7 @@ const confirmAccount = async (req, res) => {
     await dbUserToConfirm.save();
     res.json({ msg: "User successfully confirmed" });
   } catch (error) {
-    console.log(error);
+    res.json({ msg: error.message });
   }
 };
 
@@ -89,6 +92,11 @@ const forgotPassword = async (req, res) => {
   try {
     user.token = generateId();
     await user.save();
+    sendForgotPasswordEmail({
+      email: user.email,
+      name: user.name,
+      token: user.token,
+    });
     res.json({ msg: "We sent you an email with instructions" });
   } catch (error) {
     console.log(error);

@@ -25,3 +25,29 @@ export const sendRegisteredEmail = async (data) => {
     `,
   });
 };
+
+export const sendForgotPasswordEmail = async (data) => {
+  const { email, name, token } = data;
+  const transport = nodemailer.createTransport({
+    host: "smtp.mailtrap.io",
+    port: 2525,
+    auth: {
+      user: process.env.NODEMAIL_USER,
+      pass: process.env.NODEMAIL_PASSWORD,
+    },
+  });
+
+  const info = await transport.sendMail({
+    from: "'Taskman - Task manager' <accounts@taskman.com>",
+    to: email,
+    subject: "Taskman - Reset your password",
+    text: "Reset your password on Taskman",
+    html: `
+    <p>Hello: ${name} ! your requested a password submit on Taskman</p>
+    <p>Follow this link to reset your password:
+      <a href="${process.env.FRONTEND_URL}/forgot-password/${token}">Reset password</a>
+     </p>
+     <p>If you didn't requested a password reset, you can ignore this message</p>
+    `,
+  });
+};
