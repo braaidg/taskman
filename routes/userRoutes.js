@@ -14,6 +14,7 @@ import checkAuth from "../middleware/checkAuth.js";
 const router = express.Router();
 
 router.post("/", register);
+
 router.post("/login", authenticate);
 
 router.post("/forgot-password", forgotPassword);
