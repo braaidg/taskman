@@ -17,7 +17,26 @@ const newProject = async (req, res) => {
   }
 };
 
-const getProject = async (req, res) => {};
+const getProject = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const projectFromDb = await Project.findById(id);
+
+    if (!projectFromDb) {
+      const error = new Error("Project not found");
+      return res.status(404).json({ msg: error.message });
+    }
+
+    if (projectFromDb.creator.toString() !== req.user._id.toString()) {
+      const error = new Error("Action not valid");
+      return res.status(401).json({ msg: error.message });
+    }
+
+    return res.json(projectFromDb);
+  } catch (error) {
+    return res.status(400).json({ msg: "Action not valid" });
+  }
+};
 
 const editProject = async (req, res) => {};
 
