@@ -1,4 +1,5 @@
 import Project from "../models/Project.js";
+import Task from "../models/Task.js";
 
 const getProjects = async (req, res) => {
   const projects = await Project.find().where("creator").equals(req.user);
@@ -20,19 +21,20 @@ const newProject = async (req, res) => {
 const getProject = async (req, res) => {
   const { id } = req.params;
   try {
-    const projectFromDb = await Project.findById(id);
+    const project = await Project.findById(id);
 
-    if (!projectFromDb) {
+    if (!project) {
       const error = new Error("Project not found");
       return res.status(404).json({ msg: error.message });
     }
 
-    if (projectFromDb.creator.toString() !== req.user._id.toString()) {
-      const error = new Error("Action not valid");
+    if (project.creator.toString() !== req.user._id.toString()) {
+      const error = new Error("You dont have permissions to do that");
       return res.status(401).json({ msg: error.message });
     }
 
-    return res.json(projectFromDb);
+    const tasks = await Task.find().where("project").equals(project._id);
+    res.json({ project, tasks });
   } catch (error) {
     return res.status(400).json({ msg: "Action not valid" });
   }
@@ -92,8 +94,6 @@ const addCollaborator = async (req, res) => {};
 
 const deleteCollaborator = async (req, res) => {};
 
-const getTasks = async (req, res) => {};
-
 export {
   getProject,
   addCollaborator,
@@ -101,6 +101,5 @@ export {
   deleteProject,
   editProject,
   getProjects,
-  getTasks,
   newProject,
 };
