@@ -12,7 +12,7 @@ const projectSchema = mongoose.Schema(
       trim: true,
       required: true,
     },
-    finishDate: {
+    deadline: {
       type: Date,
       default: Date.now(),
     },
@@ -29,6 +29,12 @@ const projectSchema = mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
+      },
+    ],
+    tasks: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Task",
       },
     ],
   },
