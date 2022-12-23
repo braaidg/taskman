@@ -17,6 +17,8 @@ const addTask = async (req, res) => {
     }
 
     const taskOnDb = await Task.create(req.body);
+    projectOnDb.tasks.push(taskOnDb._id);
+    await projectOnDb.save();
     return res.json(taskOnDb);
   } catch (error) {
     return res.status(400).json({ msg: "Task not found" });
