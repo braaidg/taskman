@@ -66,7 +66,7 @@ const updateTask = async (req, res) => {
     taskOnDb.name = req.body.name || taskOnDb.name;
     taskOnDb.description = req.body.description || taskOnDb.description;
     taskOnDb.priority = req.body.priority || taskOnDb.priority;
-    taskOnDb.finishDate = req.body.finishDate || taskOnDb.finishDate;
+    taskOnDb.deadline = req.body.deadline || taskOnDb.deadline;
 
     const updatedTask = await taskOnDb.save();
     res.json(updatedTask);
