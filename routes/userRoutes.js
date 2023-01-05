@@ -8,6 +8,7 @@ import {
   checkToken,
   newPassword,
   profile,
+  googleLogin,
 } from "../controllers/userController.js";
 import checkAuth from "../middleware/checkAuth.js";
 
@@ -16,6 +17,8 @@ const router = express.Router();
 router.post("/", register);
 
 router.post("/login", authenticate);
+
+router.post("/googleAuth", googleLogin);
 
 router.post("/forgot-password", forgotPassword);
 
