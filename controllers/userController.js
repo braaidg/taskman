@@ -1,10 +1,38 @@
 import User from "../models/User.js";
 import generateId from "../helpers/generateId.js";
-import generateJWT from "../helpers/generateJWT.js";
+import { generateJWT, decodeJWT } from "../helpers/generateJWT.js";
 import {
   sendRegisteredEmail,
   sendForgotPasswordEmail,
 } from "../helpers/email.js";
+
+const googleLogin = async (req, res) => {
+  const { credential } = req.body;
+  const googleUserInfo = await decodeJWT(credential);
+
+  const existingUser = await User.findOne({ email: googleUserInfo.email });
+
+  if (!existingUser) {
+    const newUser = await User.create({
+      name: googleUserInfo.name,
+      email: googleUserInfo.email,
+      password: googleUserInfo.jti,
+    });
+    return res.status(200).json({
+      _id: newUser._id,
+      name: newUser.name,
+      email: newUser.email,
+      token: generateJWT(newUser._id),
+    });
+  } else {
+    return res.status(200).json({
+      _id: existingUser._id,
+      name: existingUser.name,
+      email: existingUser.email,
+      token: generateJWT(existingUser._id),
+    });
+  }
+};
 
 const register = async (req, res) => {
   const { email } = req.body;
@@ -150,4 +178,5 @@ export {
   checkToken,
   newPassword,
   profile,
+  googleLogin,
 };
