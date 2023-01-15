@@ -1,4 +1,5 @@
 import Project from "../models/Project.js";
+import User from "../models/User.js";
 
 const getProjects = async (req, res) => {
   const projects = await Project.find()
@@ -90,6 +91,18 @@ const deleteProject = async (req, res) => {
     return res.status(400).json({ msg: "Action not valid" });
   }
 };
+const searchCollaborator = async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email }).select(
+    "-confirmed -createdAt -token -password -updatedAt -__v"
+  );
+
+  if (!user) {
+    const error = new Error("User not found");
+    return res.status(404).json({ msg: error.message });
+  }
+  res.json(user);
+};
 
 const addCollaborator = async (req, res) => {};
 
@@ -103,4 +116,5 @@ export {
   editProject,
   getProjects,
   newProject,
+  searchCollaborator,
 };
