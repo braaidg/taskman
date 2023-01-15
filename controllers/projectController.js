@@ -104,7 +104,43 @@ const searchCollaborator = async (req, res) => {
   res.json(user);
 };
 
-const addCollaborator = async (req, res) => {};
+const addCollaborator = async (req, res) => {
+  const project = await Project.findById(req.params.id);
+
+  if (!project) {
+    const error = new Error("Project not found");
+    return res.status(404).json({ msg: error.message });
+  }
+
+  if (project.creator.toString() !== req.user._id.toString()) {
+    const error = new Error("Action not valid");
+    return res.status(404).json({ msg: error.message });
+  }
+
+  const { email } = req.body;
+  const user = await User.findOne({ email }).select(
+    "-confirmed -createdAt -token -password -updatedAt -__v"
+  );
+
+  if (!user) {
+    const error = new Error("User not found");
+    return res.status(404).json({ msg: error.message });
+  }
+
+  if (project.creator.toString() === user._id.toString()) {
+    const error = new Error("Project creator can't be a collaborator");
+    return res.status(404).json({ msg: error.message });
+  }
+
+  if (project.collaborators.includes(user._id)) {
+    const error = new Error("User is already a collaborator");
+    return res.status(404).json({ msg: error.message });
+  }
+
+  project.collaborators.push(user._id);
+  await project.save();
+  res.json({ msg: "Collaborator added successfully" });
+};
 
 const deleteCollaborator = async (req, res) => {};
 
