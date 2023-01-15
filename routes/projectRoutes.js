@@ -7,6 +7,7 @@ import {
   editProject,
   getProjects,
   newProject,
+  searchCollaborator,
 } from "../controllers/projectController.js";
 import checkAuth from "../middleware/checkAuth.js";
 
@@ -20,7 +21,8 @@ router
   .put(checkAuth, editProject)
   .delete(checkAuth, deleteProject);
 
-router.post("/add-collaborator/:id", checkAuth, addCollaborator);
-router.post("/delete-collaborator/:id", checkAuth, deleteCollaborator);
+router.post("/collaborators", checkAuth, searchCollaborator);
+router.post("/collaborators/:id", checkAuth, addCollaborator);
+router.delete("/collaborators/:id", checkAuth, deleteCollaborator);
 
 export default router;
