@@ -2,10 +2,9 @@ import Project from "../models/Project.js";
 import User from "../models/User.js";
 
 const getProjects = async (req, res) => {
-  const projects = await Project.find()
-    .where("creator")
-    .equals(req.user)
-    .select("-tasks");
+  const projects = await Project.find({
+    $or: [{ collaborators: { $in: req.user } }, { creator: { $in: req.user } }],
+  }).select("-tasks");
   res.json(projects);
 };
 
@@ -33,14 +32,19 @@ const getProject = async (req, res) => {
       return res.status(404).json({ msg: error.message });
     }
 
-    if (project.creator.toString() !== req.user._id.toString()) {
-      const error = new Error("You dont have permissions to do that");
+    if (
+      project.creator.toString() !== req.user._id.toString() &&
+      !project.collaborators.some(
+        (collab) => collab._id.toString() === req.user._id.toString()
+      )
+    ) {
+      const error = new Error("You don't have permissions to do that");
       return res.status(401).json({ msg: error.message });
     }
 
     res.json(project);
   } catch (error) {
-    return res.status(400).json({ msg: "Action not valid" });
+    return res.status(400).json({ msg: "Invalid action" });
   }
 };
 
