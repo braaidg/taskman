@@ -91,13 +91,42 @@ const deleteTask = async (req, res) => {
       return res.status(403).json({ msg: error.message });
     }
 
-    await taskOnDb.deleteOne();
-    res.json({ msg: "Task succesfully deleted" });
+    const project = await Project.findById(taskOnDb.project);
+    project.tasks.pull(taskOnDb._id);
+
+    Promise.allSettled([await project.save(), await taskOnDb.deleteOne()]);
+
+    res.json({ msg: "Task successfully deleted" });
   } catch (error) {
     return res.status(400).json({ msg: "Task not found" });
   }
 };
 
-const changeTaskState = async (req, res) => {};
+const changeTaskState = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const taskOnDb = await Task.findById(id).populate("project");
+
+    if (!taskOnDb) {
+      const error = new Error("Task not found");
+      return res.status(404).json({ msg: error.message });
+    }
+    if (
+      taskOnDb.project.creator.toString() !== req.user._id.toString() &&
+      !taskOnDb.project.collaborators.some(
+        (collab) => collab._id.toString() === req.user._id.toString()
+      )
+    ) {
+      const error = new Error("You don't have permissions to do that");
+      return res.status(401).json({ msg: error.message });
+    }
+    taskOnDb.state = !taskOnDb.state;
+    await taskOnDb.save();
+    res.json(taskOnDb);
+  } catch (error) {
+    console.log(error);
+  }
+  console.log(req.params.id);
+};
 
 export { addTask, getTask, updateTask, deleteTask, changeTaskState };
