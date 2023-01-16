@@ -121,12 +121,16 @@ const changeTaskState = async (req, res) => {
       return res.status(401).json({ msg: error.message });
     }
     taskOnDb.state = !taskOnDb.state;
+    taskOnDb.completed_by = req.user._id;
     await taskOnDb.save();
-    res.json(taskOnDb);
+
+    const taskSaved = await Task.findById(id)
+      .populate("project")
+      .populate("completed_by");
+    res.json(taskSaved);
   } catch (error) {
     console.log(error);
   }
-  console.log(req.params.id);
 };
 
 export { addTask, getTask, updateTask, deleteTask, changeTaskState };
