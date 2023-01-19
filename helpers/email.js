@@ -3,8 +3,7 @@ import nodemailer from "nodemailer";
 export const sendRegisteredEmail = async (data) => {
   const { email, name, token } = data;
   const transport = nodemailer.createTransport({
-    host: "smtp.mailtrap.io",
-    port: 2525,
+    service: "gmail",
     auth: {
       user: process.env.NODEMAIL_USER,
       pass: process.env.NODEMAIL_PASSWORD,
@@ -29,8 +28,7 @@ export const sendRegisteredEmail = async (data) => {
 export const sendForgotPasswordEmail = async (data) => {
   const { email, name, token } = data;
   const transport = nodemailer.createTransport({
-    host: process.env.NODEMAIL_HOST,
-    port: process.env.NODEMAIL_PORT,
+    service: "gmail",
     auth: {
       user: process.env.NODEMAIL_USER,
       pass: process.env.NODEMAIL_PASSWORD,
